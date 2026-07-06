@@ -53,10 +53,11 @@ def test_category_and_product_count():
     p2 = Product("Товар 2", "Описание 2", 200.0, 2)
     p3 = Product("Товар 3", "Описание 3", 300.0, 3)
 
-    c1 = Category("Категория 1", "Описание кат 1", [p1, p2])
+    # Вызываем конструктор класса без сохранения в неиспользуемые переменные
+    Category("Категория 1", "Описание кат 1", [p1, p2])
     assert Category.category_count == 1
     assert Category.product_count == 2
 
-    c2 = Category("Категория 2", "Описание кат 2", [p3])
+    Category("Категория 2", "Описание кат 2", [p3])
     assert Category.category_count == 2
     assert Category.product_count == 3
