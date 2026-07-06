@@ -1,0 +1,25 @@
+[project]
+name = "homework-2"
+version = "0.1.0"
+description = "E-commerce core project"
+authors = [
+    {name = "Oleg",email = "oleg1986df@gmail.com"}
+]
+requires-python = ">=3.10"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+package-mode = false
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.15.20,<0.16.0)",
+    "pytest (>=9.1.1,<10.0.0)"
+]
