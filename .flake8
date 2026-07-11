@@ -1,0 +1,5 @@
+[flake8]
+exclude = .venv, .idea, __pycache__, .pytest_cache, 14.2_main.py, 15.1_main.py
+max-line-length = 119
+# Игнорируем длинные строки (E501) и переносы перед операторами (W503)
+ignore = E501, W503
