@@ -1,9 +1,11 @@
-import pytest, json
+import json
 
-from src.utils import read_json
+import pytest
+
 from src.category import Category
 from src.iterator import CategoryIterator
 from src.product import LawnGrass, Product, Smartphone
+from src.utils import read_json
 
 
 @pytest.fixture
@@ -185,14 +187,7 @@ def test_read_json_success(tmp_path):
         {
             "name": "Электроника",
             "description": "Гаджеты",
-            "products": [
-                {
-                    "name": "Смартфон",
-                    "description": "Мобильный",
-                    "price": 50000.0,
-                    "quantity": 10
-                }
-            ]
+            "products": [{"name": "Смартфон", "description": "Мобильный", "price": 50000.0, "quantity": 10}],
         }
     ]
     file = tmp_path / "test_products.json"
