@@ -1,9 +1,7 @@
 class Product:
     """Класс для представления товара."""
 
-    def __init__(
-        self, name: str, description: str, price: float, quantity: int
-    ) -> None:
+    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
         self.name = name
         self.description = description
         self.price = price
@@ -18,6 +16,7 @@ class Product:
         if type(self) is not type(other):
             raise TypeError("Можно складывать только товары одного и того же класса")
         return (self.price * self.quantity) + (other.price * other.quantity)
+
 
 class Smartphone(Product):
     """Класс для представления смартфона."""

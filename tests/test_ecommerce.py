@@ -2,7 +2,7 @@ import pytest
 
 from src.category import Category
 from src.iterator import CategoryIterator
-from src.product import Product, Smartphone, LawnGrass
+from src.product import LawnGrass, Product, Smartphone
 
 
 @pytest.fixture
@@ -39,9 +39,7 @@ def test_product_init(sample_product):
 
 def test_product_str(sample_product):
     """Тест строкового отображения продукта (__str__)."""
-    assert (
-            str(sample_product) == "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт."
-    )
+    assert str(sample_product) == "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт."
 
 
 def test_category_str(sample_category):
@@ -91,7 +89,7 @@ def test_smartphone_init():
         efficiency=4.5,
         model="15 Pro",
         memory=256,
-        color="Space Gray"
+        color="Space Gray",
     )
     assert phone.name == "iPhone 15"
     assert phone.description == "Флагман от Apple"
@@ -112,7 +110,7 @@ def test_lawngrass_init():
         quantity=20,
         country="Россия",
         germination_period=14,
-        color="Зеленый"
+        color="Зеленый",
     )
     assert grass.name == "Изумруд"
     assert grass.description == "Быстрорастущая трава"
@@ -143,12 +141,23 @@ def test_add_base_product_and_subclass_raises_error(sample_product):
 def test_category_add_subclass_products(sample_category):
     """Тест успешного добавления подклассов (Smartphone, LawnGrass) в категорию."""
     phone = Smartphone(
-        name="iPhone 15", description="Desc", price=100000.0, quantity=2,
-        efficiency=4.5, model="15 Pro", memory=256, color="Gray"
+        name="iPhone 15",
+        description="Desc",
+        price=100000.0,
+        quantity=2,
+        efficiency=4.5,
+        model="15 Pro",
+        memory=256,
+        color="Gray",
     )
     grass = LawnGrass(
-        name="Изумруд", description="Desc", price=500.0, quantity=20,
-        country="Россия", germination_period=14, color="Зеленый"
+        name="Изумруд",
+        description="Desc",
+        price=500.0,
+        quantity=20,
+        country="Россия",
+        germination_period=14,
+        color="Зеленый",
     )
 
     # Добавляем наследников класса Product
