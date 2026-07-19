@@ -1,26 +1,25 @@
+from src.base_group import BaseGroup
 from src.product import Product
 
 
-class Category:
+class Category(BaseGroup):
     """Класс для представления категории товаров."""
 
     category_count = 0
     product_count = 0
 
     def __init__(self, name: str, description: str, products: list[Product]) -> None:
-        self.name = name
-        self.description = description
+        # Вызываем конструктор абстрактного базового класса
+        super().__init__(name, description)
 
-        # 1. Создаем строго приватный список с двойным подчеркиванием
         self.__products = []
 
-        # 2. Наполняем его через метод add_product
         for product in products:
             self.add_product(product)
 
         Category.category_count += 1
 
-    def add_product(self, product) -> None:
+    def add_product(self, product: Product) -> None:
         """Добавляет продукт в приватный список товаров категории с валидацией типа."""
         if not isinstance(product, Product):
             raise TypeError("Можно добавлять только объекты класса Product или его наследников")
