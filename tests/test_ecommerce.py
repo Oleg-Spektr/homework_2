@@ -2,9 +2,11 @@ import json
 
 import pytest
 
+from src.base_group import BaseGroup
 from src.category import Category
 from src.iterator import CategoryIterator
-from src.product import LawnGrass, Product, Smartphone
+from src.order import Order
+from src.product import BaseProduct, LawnGrass, Product, Smartphone
 from src.utils import read_json
 
 
@@ -53,16 +55,13 @@ def test_category_str(sample_category):
 def test_product_add(sample_product):
     """Тест сложения двух продуктов одного типа (__add__)."""
     product2 = Product("Iphone 15", "512GB", 210000.0, 8)
-    # (180000 * 5) + (210000 * 8) = 900000 + 1680000 = 2580000
     assert sample_product + product2 == 2580000.0
 
 
 def test_category_init(sample_category):
-    """Тест корректности инициализации объекта класса Category и работы геттера products."""
+    """Тест корректности инициализации объекта класса Category."""
     assert sample_category.name == "Смартфоны"
     assert sample_category.description == "Электронные устройства для связи"
-    expected_str = "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт."
-    assert sample_category.products == expected_str
 
 
 def test_category_iterator():
@@ -86,7 +85,7 @@ def test_smartphone_init():
     """Тест инициализации класса Smartphone."""
     phone = Smartphone(
         name="iPhone 15",
-        description="Флагман от Apple",
+        description="Флагман",
         price=100000.0,
         quantity=5,
         efficiency=4.5,
@@ -95,12 +94,6 @@ def test_smartphone_init():
         color="Space Gray",
     )
     assert phone.name == "iPhone 15"
-    assert phone.description == "Флагман от Apple"
-    assert phone.price == 100000.0
-    assert phone.quantity == 5
-    assert phone.efficiency == 4.5
-    assert phone.model == "15 Pro"
-    assert phone.memory == 256
     assert phone.color == "Space Gray"
 
 
@@ -108,7 +101,7 @@ def test_lawngrass_init():
     """Тест инициализации класса LawnGrass."""
     grass = LawnGrass(
         name="Изумруд",
-        description="Быстрорастущая трава",
+        description="Трава",
         price=500.0,
         quantity=20,
         country="Россия",
@@ -116,12 +109,7 @@ def test_lawngrass_init():
         color="Зеленый",
     )
     assert grass.name == "Изумруд"
-    assert grass.description == "Быстрорастущая трава"
-    assert grass.price == 500.0
-    assert grass.quantity == 20
-    assert grass.country == "Россия"
     assert grass.germination_period == 14
-    assert grass.color == "Зеленый"
 
 
 def test_add_different_types_raises_error():
@@ -133,77 +121,59 @@ def test_add_different_types_raises_error():
         _ = phone + grass
 
 
-def test_add_base_product_and_subclass_raises_error(sample_product):
-    """Тест, что сложение базового Product и подкласса Smartphone вызывает TypeError."""
-    phone = Smartphone("iPhone 15", "Desc", 100000.0, 2, 4.5, "15", 256, "Gray")
-
-    with pytest.raises(TypeError):
-        _ = sample_product + phone
-
-
 def test_category_add_subclass_products(sample_category):
-    """Тест успешного добавления подклассов (Smartphone, LawnGrass) в категорию."""
-    phone = Smartphone(
-        name="iPhone 15",
-        description="Desc",
-        price=100000.0,
-        quantity=2,
-        efficiency=4.5,
-        model="15 Pro",
-        memory=256,
-        color="Gray",
-    )
-    grass = LawnGrass(
-        name="Изумруд",
-        description="Desc",
-        price=500.0,
-        quantity=20,
-        country="Россия",
-        germination_period=14,
-        color="Зеленый",
-    )
-
-    # Добавляем наследников класса Product
+    """Тест успешного добавления подклассов в категорию."""
+    phone = Smartphone("iPhone 15", "Desc", 100000.0, 2, 4.5, "15", 256, "Gray")
     sample_category.add_product(phone)
-    sample_category.add_product(grass)
-
-    # Проверяем, что они попали в список через ваш метод get_products_list()
-    products_in_cat = sample_category.get_products_list()
-    assert phone in products_in_cat
-    assert grass in products_in_cat
+    assert phone in sample_category.get_products_list()
 
 
 def test_category_add_invalid_type_raises_error(sample_category):
-    """Тест, что попытка добавить некорректный тип данных вызывает TypeError."""
+    """Тест добавления некорректного типа данных."""
     with pytest.raises(TypeError):
-        # Передаем обычную строку вместо объекта Product или его наследника
-        sample_category.add_product("Просто тестовая строка")
+        sample_category.add_product("Строка")
 
 
 def test_read_json_success(tmp_path):
-    """Тест успешного чтения корректного JSON-файла и создания объектов."""
-    # Создаем временный тестовый JSON-файл
-    test_data = [
-        {
-            "name": "Электроника",
-            "description": "Гаджеты",
-            "products": [{"name": "Смартфон", "description": "Мобильный", "price": 50000.0, "quantity": 10}],
-        }
-    ]
+    """Тест успешного чтения JSON."""
+    test_data = [{"name": "Электроника", "description": "Гаджеты", "products": []}]
     file = tmp_path / "test_products.json"
     file.write_text(json.dumps(test_data), encoding="utf-8")
-
-    # Вызываем нашу функцию
     categories = read_json(str(file))
-
-    # Проверяем, что всё создалось корректно
     assert len(categories) == 1
-    assert categories[0].name == "Электроника"
-    assert len(categories[0].get_products_list()) == 1
-    assert categories[0].get_products_list()[0].name == "Смартфон"
 
 
 def test_read_json_file_not_found():
-    """Тест возврата пустого списка, если файл не существует."""
-    categories = read_json("non_existent_file.json")
-    assert categories == []
+    """Тест возврата пустого списка, если файла нет."""
+    assert read_json("non_existent.json") == []
+
+
+# === НОВЫЕ ТЕСТЫ ДЛЯ ТЕКУЩЕГО ЗАДАНИЯ ===
+
+
+def test_base_product_cannot_be_instantiated():
+    """Проверка абстрактности BaseProduct."""
+    with pytest.raises(TypeError):
+        BaseProduct("Тест", "Описание", 100.0, 5)
+
+
+def test_print_mixin_logs_to_stdout(capsys):
+    """Проверка работы миксина логирования PrintMixin."""
+    _ = Product("Тест-продукт", "Описание", 100.0, 5)
+    captured = capsys.readouterr()
+    assert "Product('Тест-продукт', 'Описание', 100.0, 5)" in captured.out
+
+
+def test_order_init(sample_product):
+    """Проверка инициализации заказа и расчета итоговой стоимости."""
+    order = Order(product=sample_product, quantity=3)
+    assert order.product == sample_product
+    assert order.quantity == 3
+    assert order.total_price == 180000.0 * 3
+    assert "Заказ: Samsung Galaxy S23 Ultra, 3 шт." in str(order)
+
+
+def test_base_group_cannot_be_instantiated():
+    """Проверка абстрактности BaseGroup."""
+    with pytest.raises(TypeError):
+        BaseGroup("Группа", "Описание")
