@@ -1,5 +1,6 @@
-import pytest
+import pytest, json
 
+from src.utils import read_json
 from src.category import Category
 from src.iterator import CategoryIterator
 from src.product import LawnGrass, Product, Smartphone
@@ -175,3 +176,39 @@ def test_category_add_invalid_type_raises_error(sample_category):
     with pytest.raises(TypeError):
         # Передаем обычную строку вместо объекта Product или его наследника
         sample_category.add_product("Просто тестовая строка")
+
+
+def test_read_json_success(tmp_path):
+    """Тест успешного чтения корректного JSON-файла и создания объектов."""
+    # Создаем временный тестовый JSON-файл
+    test_data = [
+        {
+            "name": "Электроника",
+            "description": "Гаджеты",
+            "products": [
+                {
+                    "name": "Смартфон",
+                    "description": "Мобильный",
+                    "price": 50000.0,
+                    "quantity": 10
+                }
+            ]
+        }
+    ]
+    file = tmp_path / "test_products.json"
+    file.write_text(json.dumps(test_data), encoding="utf-8")
+
+    # Вызываем нашу функцию
+    categories = read_json(str(file))
+
+    # Проверяем, что всё создалось корректно
+    assert len(categories) == 1
+    assert categories[0].name == "Электроника"
+    assert len(categories[0].get_products_list()) == 1
+    assert categories[0].get_products_list()[0].name == "Смартфон"
+
+
+def test_read_json_file_not_found():
+    """Тест возврата пустого списка, если файл не существует."""
+    categories = read_json("non_existent_file.json")
+    assert categories == []
