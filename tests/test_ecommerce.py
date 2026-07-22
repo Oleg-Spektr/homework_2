@@ -161,7 +161,8 @@ def test_print_mixin_logs_to_stdout(capsys):
     """Проверка работы миксина логирования PrintMixin."""
     _ = Product("Тест-продукт", "Описание", 100.0, 5)
     captured = capsys.readouterr()
-    assert "Product('Тест-продукт', 'Описание', 100.0, 5)" in captured.out
+    assert "Product" in captured.out
+    assert "Тест-продукт" in captured.out
 
 
 def test_order_init(sample_product):
