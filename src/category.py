@@ -20,12 +20,36 @@ class Category(BaseGroup):
         Category.category_count += 1
 
     def add_product(self, product: Product) -> None:
-        """Добавляет продукт в приватный список товаров категории с валидацией типа."""
-        if not isinstance(product, Product):
-            raise TypeError("Можно добавлять только объекты класса Product или его наследников")
+        """Добавляет продукт в приватный список товаров категории с валидацией типа и количества."""
+        try:
+            if not isinstance(product, Product):
+                raise TypeError("Можно добавлять только объекты класса Product или его наследников")
 
-        self.__products.append(product)
-        Category.product_count += 1
+            if product.quantity == 0:
+                from src.exceptions import ZeroQuantityError
+
+                raise ZeroQuantityError()
+
+        except (TypeError, ValueError) as e:
+            print(f"Возникла ошибка при добавлении товара: {e}")
+            raise e
+        else:
+            self.__products.append(product)
+            Category.product_count += 1
+            print("Товар добавлен.")
+        finally:
+            print("Обработка добавления товара завершена.")
+
+    def middle_price(self) -> float:
+        """Подсчитывает средний ценник всех товаров в категории.
+
+        Если товаров нет, перехватывает ZeroDivisionError и возвращает 0.
+        """
+        try:
+            total_price = sum(product.price for product in self.__products)
+            return total_price / len(self.__products)
+        except ZeroDivisionError:
+            return 0.0
 
     def __str__(self) -> str:
         """Строковое отображение категории (общее количество штук на складе)."""

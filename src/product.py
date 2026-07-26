@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from src.exceptions import ZeroQuantityError
+
 
 class PrintMixin:
     """Миксин для логирования информации о создании объекта в консоль."""
@@ -21,6 +23,9 @@ class BaseProduct(ABC):
 
     @abstractmethod
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        if quantity == 0:
+            raise ZeroQuantityError("Товар с нулевым количеством не может быть добавлен")
+
         self.name = name
         self.description = description
         self.price = price
