@@ -4,6 +4,7 @@ import pytest
 
 from src.base_group import BaseGroup
 from src.category import Category
+from src.exceptions import ZeroQuantityError
 from src.iterator import CategoryIterator
 from src.order import Order
 from src.product import BaseProduct, LawnGrass, Product, Smartphone
@@ -148,9 +149,6 @@ def test_read_json_file_not_found():
     assert read_json("non_existent.json") == []
 
 
-# === НОВЫЕ ТЕСТЫ ДЛЯ ТЕКУЩЕГО ЗАДАНИЯ ===
-
-
 def test_base_product_cannot_be_instantiated():
     """Проверка абстрактности BaseProduct."""
     with pytest.raises(TypeError):
@@ -178,3 +176,46 @@ def test_base_group_cannot_be_instantiated():
     """Проверка абстрактности BaseGroup."""
     with pytest.raises(TypeError):
         BaseGroup("Группа", "Описание")
+
+
+# === НОВЫЕ ТЕСТЫ ДЛЯ ТЕМЫ EXCEPTIONS ===
+
+
+def test_product_init_with_zero_quantity_raises_custom_error():
+    """Тест, что создание продукта с нулевым количеством вызывает ZeroQuantityError."""
+    with pytest.raises(ZeroQuantityError, match="Товар с нулевым количеством не может быть добавлен"):
+        Product("Бракованный товар", "Описание", 100.0, 0)
+
+
+def test_category_middle_price_success(sample_category):
+    """Тест расчета средней цены в категории с товарами."""
+    product2 = Product("Тестовый 2", "Описание", 100000.0, 2)
+    sample_category.add_product(product2)
+    # (180000.0 + 100000.0) / 2 = 140000.0
+    assert sample_category.middle_price() == 140000.0
+
+
+def test_category_middle_price_empty_category():
+    """Тест, что средняя цена пустой категории возвращает 0.0."""
+    empty_category = Category("Пустая", "Без товаров", [])
+    assert empty_category.middle_price() == 0.0
+
+
+def test_category_add_product_logs_success(sample_category, capsys):
+    """Тест вывода сообщений при успешном добавлении товара (блоки else/finally)."""
+    new_product = Product("Новый", "Описание", 10.0, 5)
+    sample_category.add_product(new_product)
+
+    captured = capsys.readouterr()
+    assert "Товар добавлен." in captured.out
+    assert "Обработка добавления товара завершена." in captured.out
+
+
+def test_order_init_zero_quantity_raises_error(sample_product, capsys):
+    """Тест обработки исключения при создании заказа с нулевым количеством."""
+    with pytest.raises(ZeroQuantityError):
+        Order(sample_product, 0)
+
+    captured = capsys.readouterr()
+    assert "Возникла ошибка при создании заказа:" in captured.out
+    assert "Обработка добавления товара завершена." in captured.out
